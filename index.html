@@ -1,278 +1,256 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brainy Buddies V3</title>
+<title>Brainy Buddies Ultimate</title>
 
 <style>
 body{
   margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#667eea,#764ba2);
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#4facfe,#00f2fe);
   text-align:center;
-  color:#fff;
+  color:#333;
 }
 
 .container{
-  max-width:520px;
+  max-width:500px;
   margin:auto;
-  padding:15px;
+  padding:10px;
 }
 
-h1{margin:10px 0;}
+.header{
+  color:white;
+}
 
-.panel{
-  background:#fff;
-  color:#333;
+.card{
+  background:white;
   border-radius:20px;
-  padding:20px;
-  margin-top:15px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+  padding:15px;
+  margin-top:10px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.button{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  margin:6px;
+  font-size:18px;
+  background:#ffd166;
 }
 
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:10px;
+  gap:8px;
 }
 
-.card{
-  background:#ffeaa7;
-  padding:20px;
-  border-radius:15px;
+.tile{
+  background:#ffe;
+  padding:18px;
   font-size:28px;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.card.correct{background:#55efc4;}
-.card.wrong{background:#ff7675;}
-
-button{
-  padding:12px 20px;
-  border:none;
   border-radius:12px;
-  margin:8px;
-  font-size:16px;
-  cursor:pointer;
-  background:#fdcb6e;
 }
+
+.correct{background:#90ee90;}
+.wrong{background:#ff7f7f;}
 
 .progress{
-  font-size:16px;
+  color:white;
 }
 
-.big{font-size:35px;}
-
-.fade{
-  animation:fade .4s ease;
-}
-@keyframes fade{
-  from{opacity:0;transform:scale(.9);}
-  to{opacity:1;transform:scale(1);}
+.instructions{
+  background:#fff3cd;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:10px;
 }
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
-<h1>🧠 Brainy Buddies</h1>
+
+<h2 class="header">🧠 Brainy Buddies</h2>
 
 <div class="progress">
-Stage <span id="stage">1</span>/10 |
-⭐ <span id="stars">0</span>
+Stage <span id="stage">1</span>/10 | ⭐ <span id="score">0</span>
 </div>
 
-<div class="panel fade" id="game"></div>
+<div class="card" id="game"></div>
 
-<button onclick="nextStage()">Next ▶</button>
+<button class="button" onclick="next()">Next ▶</button>
 
 </div>
 
 <script>
-let stage=1, stars=0;
 
-// brain metrics
-let brain = {
+let stage=1;
+let score=0;
+
+let brain={
   memory:0,
   logic:0,
   focus:0
 };
 
-const emojis=["🐶","🐱","🐸","🐼","🦊","🐵","🐰","🐻"];
+const game=document.getElementById("game");
 
-function updateUI(){
+function update(){
   stageEl.innerText=stage;
-  starsEl.innerText=stars;
+  scoreEl.innerText=score;
 }
 
 const stageEl=document.getElementById("stage");
-const starsEl=document.getElementById("stars");
-const game=document.getElementById("game");
+const scoreEl=document.getElementById("score");
 
 // ---------- MEMORY ----------
-function memoryGame(){
-  let pairs=2+Math.floor(stage/2);
-  let set=emojis.slice(0,pairs);
-  let deck=[...set,...set].sort(()=>Math.random()-0.5);
+function memory(){
+  let emojis=["🐶","🐱","🐸","🐼"];
+  let deck=[...emojis,...emojis].sort(()=>Math.random()-0.5);
 
   let first=null;
 
-  game.innerHTML="<h3>Memory Match</h3><div class='grid'></div>";
-  let grid=game.querySelector(".grid");
+  let html=`
+  <div class="instructions">
+  🧠 Match same animals. Tap two cards.
+  </div>
+  <div class="grid">
+  `;
 
-  deck.forEach(val=>{
-    let div=document.createElement("div");
-    div.className="card";
-    div.innerText="❓";
-
-    div.onclick=()=>{
-      if(div.innerText!=="❓")return;
-
-      div.innerText=val;
-
-      if(!first){
-        first={div,val};
-      } else {
-        if(first.val===val){
-          stars++;
-          brain.memory++;
-          div.classList.add("correct");
-          first.div.classList.add("correct");
-        } else {
-          brain.focus--;
-          setTimeout(()=>{
-            div.innerText="❓";
-            first.div.innerText="❓";
-          },500);
-        }
-        first=null;
-        updateUI();
-      }
-    };
-
-    grid.appendChild(div);
+  deck.forEach(e=>{
+    html+=`<div class="tile" onclick="flip(this,'${e}')">❓</div>`;
   });
+
+  html+="</div>";
+  game.innerHTML=html;
+
+  window.flip=function(el,val){
+    if(el.innerText!=="❓")return;
+
+    el.innerText=val;
+
+    if(!first){
+      first={el,val};
+    }else{
+      if(first.val===val){
+        el.classList.add("correct");
+        first.el.classList.add("correct");
+        score++;
+        brain.memory++;
+      }else{
+        setTimeout(()=>{
+          el.innerText="❓";
+          first.el.innerText="❓";
+        },500);
+      }
+      first=null;
+      update();
+    }
+  }
 }
 
 // ---------- PATTERN ----------
-function patternGame(){
-  let seq=[];
-  for(let i=0;i<3+stage;i++){
-    seq.push(emojis[i%3]);
-  }
+function pattern(){
+  let seq=["🐶","🐱","🐶","🐱"];
 
-  let ans=seq[seq.length-3];
+  let html=`
+  <div class="instructions">
+  🔷 Find what comes next
+  </div>
+  <div style="font-size:30px">
+  ${seq.join(" ")} ❓
+  </div>
+  `;
 
-  let html="<h3>Pattern Logic</h3><div class='big'>";
-  seq.forEach(e=>html+=e+" ");
-  html+="❓</div>";
-
-  let opts=[ans,emojis[4],emojis[5]].sort(()=>Math.random()-0.5);
-
-  opts.forEach(o=>{
-    html+=`<button onclick="checkPattern('${o}','${ans}')">${o}</button>`;
+  ["🐶","🐱","🐸"].forEach(opt=>{
+    html+=`<button class="button" onclick="answer('${opt}')">${opt}</button>`;
   });
 
   game.innerHTML=html;
-}
 
-function checkPattern(sel,ans){
-  if(sel===ans){
-    stars+=2;
-    brain.logic++;
-    alert("🎉 Correct!");
-  } else {
-    brain.focus--;
-    alert("Oops!");
+  window.answer=function(a){
+    if(a==="🐶"){
+      score+=2;
+      brain.logic++;
+      alert("Correct!");
+    }else{
+      alert("Try again!");
+    }
+    update();
   }
-  updateUI();
 }
 
 // ---------- SORT ----------
-function sortGame(){
-  let items=["🐶","🍎","🐱","🍌","🐸","🍇"]
-    .sort(()=>Math.random()-0.5)
-    .slice(0,3+stage);
-
-  let html="<h3>Sorting Game</h3>";
-  items.forEach(i=>{
-    html+=`<button onclick="selectItem('${i}')">${i}</button>`;
-  });
-
-  html+="<br><br>";
-  html+=`<button onclick="drop('animal')">🐾</button>`;
-  html+=`<button onclick="drop('fruit')">🍓</button>`;
+function sort(){
+  let html=`
+  <div class="instructions">
+  🧩 Tap item then choose category
+  </div>
+  <button onclick="pick('🐶')">🐶</button>
+  <button onclick="pick('🍎')">🍎</button>
+  <br><br>
+  <button onclick="drop('animal')">🐾</button>
+  <button onclick="drop('fruit')">🍓</button>
+  `;
 
   game.innerHTML=html;
+
   window.selected=null;
-}
 
-function selectItem(i){
-  window.selected=i;
-}
-
-function drop(type){
-  if(!window.selected)return;
-
-  let animals=["🐶","🐱","🐸"];
-  let fruits=["🍎","🍌","🍇"];
-
-  let correct=(type==="animal" && animals.includes(selected)) ||
-              (type==="fruit" && fruits.includes(selected));
-
-  if(correct){
-    stars++;
-    brain.logic++;
-    alert("Good job!");
-  } else {
-    brain.focus--;
-    alert("Try again!");
+  window.pick=function(i){
+    selected=i;
   }
 
-  updateUI();
-}
+  window.drop=function(type){
+    if(!selected)return;
 
-// ---------- REPORT ----------
-function report(){
-  let msg="🧠 Brain Report\n\n";
-  msg+=`Memory: ${brain.memory}\n`;
-  msg+=`Logic: ${brain.logic}\n`;
-  msg+=`Focus: ${brain.focus}\n`;
+    let correct=(selected==="🐶" && type==="animal") ||
+                (selected==="🍎" && type==="fruit");
 
-  if(brain.memory>5) msg+="\nGreat memory!";
-  if(brain.logic>5) msg+="\nStrong logic!";
-  if(brain.focus<0) msg+="\nNeeds focus practice";
+    if(correct){
+      score++;
+      brain.logic++;
+      alert("Good!");
+    }else{
+      alert("Wrong!");
+    }
 
-  alert(msg);
+    update();
+  }
 }
 
 // ---------- FLOW ----------
-function loadGame(){
-  game.classList.remove("fade");
-  void game.offsetWidth;
-  game.classList.add("fade");
-
-  let mode=stage%3;
-
-  if(mode===1) memoryGame();
-  else if(mode===2) patternGame();
-  else sortGame();
+function load(){
+  if(stage%3===1) memory();
+  else if(stage%3===2) pattern();
+  else sort();
 }
 
-function nextStage(){
+function next(){
   if(stage<10){
     stage++;
-    loadGame();
-  } else {
+    load();
+  }else{
     report();
   }
-  updateUI();
+  update();
 }
 
-loadGame();
+function report(){
+  alert(
+    "🧠 Report\n"+
+    "Memory: "+brain.memory+"\n"+
+    "Logic: "+brain.logic+"\n"+
+    "Focus: "+brain.focus
+  );
+}
+
+load();
+
 </script>
 
 </body>
