@@ -2,14 +2,13 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brainy Buddies Game</title>
+<title>Brainy Buddies Deluxe</title>
 
 <style>
 body{
   margin:0;
   font-family:sans-serif;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  color:white;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4);
   text-align:center;
 }
 
@@ -19,70 +18,104 @@ body{
   padding:10px;
 }
 
+h1{
+  color:white;
+}
+
 .card{
   background:white;
-  color:#333;
   border-radius:20px;
   padding:15px;
   margin-top:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  animation:fade 0.5s;
 }
 
 button{
   padding:12px;
   margin:6px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   font-size:18px;
-  background:#ffd166;
+  background:#ffcc00;
+  transition:0.2s;
+}
+
+button:active{
+  transform:scale(0.9);
 }
 
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:8px;
+  gap:10px;
 }
 
 .tile{
-  background:#eee;
-  padding:18px;
-  font-size:28px;
-  border-radius:12px;
-}
-
-.correct{background:#90ee90;}
-.wrong{background:#ff7f7f;}
-
-.instructions{
   background:#fff3cd;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:10px;
+  padding:20px;
+  font-size:30px;
+  border-radius:15px;
+  transition:0.3s;
 }
-</style>
 
+.tile:hover{
+  transform:scale(1.1);
+}
+
+.correct{
+  background:#8cffc1;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:scale(0.9);}
+  to{opacity:1;transform:scale(1);}
+}
+
+/* confetti */
+.confetti{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+.dot{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:red;
+  animation:fall 1s linear forwards;
+}
+@keyframes fall{
+  to{transform:translateY(100vh);opacity:0;}
+}
+
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>🧠 Brainy Buddies</h2>
+<h1>🧠 Brainy Buddies</h1>
 
-<div>
-Level <span id="level">1</span>/10 | ⭐ <span id="score">0</span>
+<div style="color:white">
+Level <span id="level">1</span> | ⭐ <span id="score">0</span>
 </div>
 
 <div class="card" id="game"></div>
 
-<button onclick="nextLevel()">Next ▶</button>
+<button onclick="next()">Next ▶</button>
 
 </div>
 
+<div class="confetti" id="confetti"></div>
+
 <script>
 
-let level=1;
-let score=0;
-
+let level=1, score=0;
 const game=document.getElementById("game");
 
 function update(){
@@ -93,26 +126,29 @@ function update(){
 const levelEl=document.getElementById("level");
 const scoreEl=document.getElementById("score");
 
-// ---------- MEMORY ----------
-function memoryGame(){
-  let emojis=["🐶","🐱","🐸","🐼","🦊"];
-  let pairs=2+Math.floor(level/2);
-  let deck=[...emojis.slice(0,pairs),...emojis.slice(0,pairs)]
-    .sort(()=>Math.random()-0.5);
+// 🎉 CONFETTI
+function confetti(){
+  const box=document.getElementById("confetti");
+  for(let i=0;i<20;i++){
+    let d=document.createElement("div");
+    d.className="dot";
+    d.style.left=Math.random()*100+"%";
+    d.style.background=`hsl(${Math.random()*360},100%,50%)`;
+    box.appendChild(d);
+    setTimeout(()=>d.remove(),1000);
+  }
+}
 
+// ---------- MEMORY ----------
+function memory(){
+  let emojis=["🐶","🐱","🐸","🐼"];
+  let deck=[...emojis,...emojis].sort(()=>Math.random()-0.5);
   let first=null;
 
-  let html=`
-  <div class="instructions">
-  🧠 Tap two cards to find matching pairs
-  </div>
-  <div class="grid">
-  `;
-
+  let html="<h3>Match Pairs</h3><div class='grid'>";
   deck.forEach(e=>{
     html+=`<div class="tile" onclick="flip(this,'${e}')">❓</div>`;
   });
-
   html+="</div>";
   game.innerHTML=html;
 
@@ -128,11 +164,12 @@ function memoryGame(){
         el.classList.add("correct");
         first.el.classList.add("correct");
         score++;
+        confetti();
       }else{
         setTimeout(()=>{
           el.innerText="❓";
           first.el.innerText="❓";
-        },500);
+        },400);
       }
       first=null;
       update();
@@ -141,116 +178,39 @@ function memoryGame(){
 }
 
 // ---------- PATTERN ----------
-function patternGame(){
-  let seq=[];
-  for(let i=0;i<3+level;i++){
-    seq.push(["🔴","🔵","🟢"][i%3]);
-  }
+function pattern(){
+  let seq=["⭐","🌙","⭐","🌙"];
+  let html="<h3>Find Next</h3>";
+  html+="<div style='font-size:30px'>"+seq.join(" ")+" ❓</div>";
 
-  let ans=seq[seq.length-3];
-
-  let html=`
-  <div class="instructions">
-  🔷 Find the next pattern
-  </div>
-  <div style="font-size:30px">
-  ${seq.join(" ")} ❓
-  </div>
-  `;
-
-  ["🔴","🔵","🟢"].forEach(opt=>{
-    html+=`<button onclick="answer('${opt}','${ans}')">${opt}</button>`;
+  ["⭐","🌙","☀️"].forEach(o=>{
+    html+=`<button onclick="check('${o}')">${o}</button>`;
   });
 
   game.innerHTML=html;
 
-  window.answer=function(sel,ans){
-    if(sel===ans){
+  window.check=function(sel){
+    if(sel==="⭐"){
       score+=2;
-      showMsg("Correct 🎉");
-    }else{
-      showMsg("Try again ❌");
+      confetti();
     }
     update();
   }
-}
-
-// ---------- SORT ----------
-function sortGame(){
-  let items=["🐶","🍎","🐱","🍌","🐸","🍇"]
-    .sort(()=>Math.random()-0.5)
-    .slice(0,3+level);
-
-  let html=`
-  <div class="instructions">
-  🧩 Tap item → then choose category
-  </div>
-  `;
-
-  items.forEach(i=>{
-    html+=`<button onclick="pick('${i}')">${i}</button>`;
-  });
-
-  html+=`<br><br>
-  <button onclick="drop('animal')">🐾 Animals</button>
-  <button onclick="drop('fruit')">🍓 Fruits</button>
-  `;
-
-  game.innerHTML=html;
-
-  window.selected=null;
-
-  window.pick=function(i){
-    selected=i;
-  }
-
-  window.drop=function(type){
-    if(!selected)return;
-
-    let animals=["🐶","🐱","🐸"];
-    let fruits=["🍎","🍌","🍇"];
-
-    let correct=(type==="animal" && animals.includes(selected)) ||
-                (type==="fruit" && fruits.includes(selected));
-
-    if(correct){
-      score++;
-      showMsg("Good job ⭐");
-    }else{
-      showMsg("Wrong ❌");
-    }
-
-    update();
-  }
-}
-
-// ---------- MESSAGE ----------
-function showMsg(text){
-  game.innerHTML += `<p style="color:green;">${text}</p>`;
 }
 
 // ---------- FLOW ----------
-function loadGame(){
-  if(level%3===1) memoryGame();
-  else if(level%3===2) patternGame();
-  else sortGame();
+function load(){
+  if(level%2===1) memory();
+  else pattern();
 }
 
-function nextLevel(){
-  if(level<10){
-    level++;
-    loadGame();
-  }else{
-    game.innerHTML = `
-    <h3>🎉 Game Completed!</h3>
-    <p>Your Score: ${score}</p>
-    <p>Great learning!</p>
-    `;
-  }
+function next(){
+  level++;
+  load();
   update();
 }
 
-loadGame();
+load();
 
 </script>
 
