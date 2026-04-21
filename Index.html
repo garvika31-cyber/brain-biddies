@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🧠 Brainy Buddies · Smart Fun for Ages 4‑6</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none; /* Prevents accidental text selection while tapping */
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(145deg, #2b5a8c 0%, #1b3f5c 100%);
+      font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+    .game-container {
+      max-width: 750px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: 64px 64px 48px 48px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 6px 12px rgba(0, 0, 0, 0.3);
+      padding: 24px 20px 30px;
+      border: 3px solid #ffd966;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: #1e2f4b;
+      text-shadow: 3px 3px 0 #ffb347;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .stars-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 5px 0 15px;
+    }
+    .star-badge {
+      background: #f9e75c;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2d3e50;
+      box-shadow: inset 0 -3px 0 #c49b1f, 0 6px 0 #7f5f1a;
+      border: 2px solid #fef9d7;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .game-board {
+      background: #e7f0fd;
+      border-radius: 56px;
+      padding: 24px 16px 20px;
+      margin: 10px 0 5px;
+      border: 4px solid white;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.05), 0 12px 0 #4a6a8b;
+    }
+    .mode-selector {
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .mode-btn {
+      background: #f4c27a;
+      border: none;
+      border-radius: 60px;
+      padding: 12px 8px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #1e3a5f;
+      box-shadow: 0 5px 0 #b46f30, 0 2px 8px rgba(0,0,0,0.2);
+      border: 2px solid #fff1d0;
+      cursor: pointer;
+      transition: all 0.05s ease-in;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .mode-btn.active {
+      background: #ffdb7c;
+      box-shadow: 0 2px 0 #b46f30, 0 4px 10px #ffd966;
+      transform: translateY(3px);
+      border-color: #ffffff;
+    }
+    .mode-btn span {
+      font-size: 1.8rem;
+    }
+    .play-area {
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    /* memory grid */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      justify-content: center;
+      margin: 10px 0;
+    }
+    .card {
+      aspect-ratio: 1 / 1;
+      background: #ffcf8a;
+      border-radius: 24px;
+      box-shadow: 0 8px 0 #9f6e42, 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      cursor: pointer;
+      border: 3px solid #fef6e3;
+      transition: 0.1s;
+      transform: translateY(-2px);
+    }
+    .card.flipped {
+      background: #b0d9b1;
+      box-shadow: 0 4px 0 #5d7a5e, 0 2px 6px rgba(0,0,0,0.1);
+      transform: translateY(4px);
+      border-color: #e2f0e2;
+    }
+    .card.matched {
+      background: #a3c9a8;
+      box-shadow: 0 2px 0 #3f6842;
+      transform: translateY(6px);
+      opacity: 0.7;
+      pointer-events: none;
+      font-size: 2.5rem;
+    }
+    /* pattern row */
+    .pattern-row {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin: 25px 0 15px;
+    }
+    .pattern-item {
+      width: 85px;
+      height: 85px;
+      background: #ffecb3;
+      border-radius: 30px;
+      box-shadow: 0 7px 0 #c2a155, 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.2rem;
+      border: 3px solid #fff5d6;
+    }
+    .options-row {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 20px;
+    }
+    .option-btn {
+      width: 95px;
+      height: 95px;
+      background: #fdd998;
+      border-radius: 35px;
+      box-shadow: 0 8px 0 #b77e3c, 0 4px 8px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.2rem;
+      cursor: pointer;
+      border: 3px solid #fff6e0;
+      transition: 0.08s;
+      transform: translateY(-2px);
+    }
+    .option-btn:active {
+      box-shadow: 0 2px 0 #b77e3c;
+      transform: translateY(6px);
+    }
+    /* sort area */
+    .sort-boxes {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 20px 0 10px;
+    }
+    .drop-zone {
+      width: 140px;
+      min-height: 130px;
+      background: #cbe4f0;
+      border-radius: 40px;
+      box-shadow: inset 0 4px 6px rgba(0,0,0,0.05), 0 8px 0 #6e8b9c;
+      border: 4px dashed #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px 5px;
+    }
+    .drop-zone span {
+      font-size: 2.5rem;
+      margin-bottom: 5px;
+    }
+    .drag-items {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin: 20px 0 10px;
+    }
+    .drag-item {
+      width: 85px;
+      height: 85px;
+      background: #fbd5a2;
+      border-radius: 30px;
+      box-shadow: 0 7px 0 #b47d44;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      border: 3px solid white;
+      cursor: grab;
+      transition: 0.1s;
+      transform: translateY(-2px);
+    }
+    .drag-item:active {
+      cursor: grabbing;
+      opacity: 0.8;
+    }
+    .message-area {
+      min-height: 50px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #1f4a2c;
+      margin: 15px 0 5px;
+      padding: 8px;
+      background: #fef8e7;
+      border-radius: 40px;
+    }
+    .action-button {
+      background: #5fa7cf;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 1.5rem;
+      padding: 16px 35px;
+      border-radius: 50px;
+      box-shadow: 0 7px 0 #2c5a7a, 0 2px 10px rgba(0,0,0,0.1);
+      border: 2px solid #b5dafc;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.08s;
+      transform: translateY(-3px);
+    }
+    .action-button:active {
+      box-shadow: 0 2px 0 #2c5a7a;
+      transform: translateY(4px);
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      color: #1e3f5e;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <h1>
+    <span>🧸 Brainy Buddies</span>
+  </h1>
+  <div class="stars-container">
+    <div class="star-badge" id="starDisplay">⭐ 0</div>
+  </div>
+  <div class="game-board">
+    <div class="mode-selector">
+      <button class="mode-btn active" data-mode="memory"><span>🃏</span> Memory</button>
+      <button class="mode-btn" data-mode="pattern"><span>🔷</span> Pattern</button>
+      <button class="mode-btn" data-mode="sort"><span>🧩</span> Sort</button>
+    </div>
+    <div id="playArea" class="play-area">
+      <!-- dynamic content injected by js -->
+    </div>
+    <div id="message" class="message-area">✨ Choose a game! ✨</div>
+    <button class="action-button" id="nextRoundBtn">▶ Next Round</button>
+  </div>
+  <div class="footer">
+    <span>👧 4‑6 years</span>
+    <span>🧠 science‑backed</span>
+    <span>🌟 fun learning</span>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- GLOBAL STATE ----------
+    let currentMode = 'memory'; // memory, pattern, sort
+    let starsEarned = 0;
+    const starDisplay = document.getElementById('starDisplay');
+    const playArea = document.getElementById('playArea');
+    const messageDiv = document.getElementById('message');
+    const nextBtn = document.getElementById('nextRoundBtn');
+
+    // Game-specific states
+    let memoryCards = [];
+    let memoryFlipped = [];
+    let memoryLock = false;
+    let memoryMatchedPairs = 0;
+
+    let patternSequence = [];
+    let patternOptions = [];
+    let patternCorrectAnswer = '';
+    let patternAnswered = false;
+
+    let sortItems = [];
+    let sortTarget = { category1: [], category2: [] }; // not heavily used, dynamic
+    let sortCompleted = false;
+    let currentDragItem = null;
+
+    // ----- helper: update star UI -----
+    function addStars(amount = 1) {
+      starsEarned += amount;
+      starDisplay.innerText = `⭐ ${starsEarned}`;
+    }
+
+    function setMessage(text, isGood = true) {
+      messageDiv.innerHTML = text;
+      messageDiv.style.color = isGood ? '#1f4a2c' : '#9e3c3c';
+    }
+
+    // ----- mode switching -----
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        resetForMode();
+        renderGame();
+      });
+    });
+
+    function resetForMode() {
+      // reset all temporary states
+      memoryCards = [];
+      memoryFlipped = [];
+      memoryLock = false;
+      memoryMatchedPairs = 0;
+      patternAnswered = false;
+      sortCompleted = false;
+      currentDragItem = null;
+    }
+
+    // ---------- RENDER BASED ON MODE ----------
+    function renderGame() {
+      if (currentMode === 'memory') renderMemory();
+      else if (currentMode === 'pattern') renderPattern();
+      else if (currentMode === 'sort') renderSort();
+    }
+
+    // ******************** MEMORY MATCH ********************
+    function renderMemory() {
+      // Emojis for 4x2 grid (8 cards = 4 pairs)
+      const emojiSet = ['🐶', '🐱', '🐸', '🐼'];
+      let deck = [...emojiSet, ...emojiSet];
+      shuffleArray(deck);
+      
+      memoryCards = deck.map((value, index) => ({
+        id: index,
+        value: value,
+        matched: false,
+        flipped: false
+      }));
+      memoryMatchedPairs = 0;
+      memoryFlipped = [];
+      memoryLock = false;
+
+      let html = `<div class="memory-grid">`;
+      memoryCards.forEach((card, idx) => {
+        const display = (card.flipped || card.matched) ? card.value : '❓';
+        const classes = `card ${card.flipped ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`;
+        html += `<div class="${classes}" data-card-id="${idx}">${display}</div>`;
+      });
+      html += `</div>`;
+      playArea.innerHTML = html;
+      setMessage('🐾 Find the matching pairs!', true);
+
+      // attach event listeners
+      document.querySelectorAll('.card').forEach(cardEl => {
+        cardEl.addEventListener('click', onMemoryCardClick);
+      });
+    }
+
+    function onMemoryCardClick(e) {
+      if (memoryLock) return;
+      const cardDiv = e.currentTarget;
+      const cardId = parseInt(cardDiv.dataset.cardId);
+      const card = memoryCards[cardId];
+      
+      // prevent if already matched or flipped
+      if (card.matched) return;
+      if (memoryFlipped.includes(cardId)) return;
+      if (memoryFlipped.length >= 2) return;
+
+      // flip card
+      card.flipped = true;
+      memoryFlipped.push(cardId);
+      updateMemoryCardUI(cardId);
+
+      if (memoryFlipped.length === 2) {
+        memoryLock = true;
+        const [id1, id2] = memoryFlipped;
+        const card1 = memoryCards[id1];
+        const card2 = memoryCards[id2];
+
+        if (card1.value === card2.value) {
+          // MATCH!
+          card1.matched = true;
+          card2.matched = true;
+          card1.flipped = true;
+          card2.flipped = true;
+          memoryMatchedPairs++;
+          addStars(1);
+          setMessage('🌟 Great match! +1 star', true);
+          
+          updateMemoryCardUI(id1);
+          updateMemoryCardUI(id2);
+          
+          memoryFlipped = [];
+          memoryLock = false;
+          
+          if (memoryMatchedPairs === 4) {
+            setMessage('🎉 You found all pairs! Super memory! 🌟🌟🌟', true);
+            addStars(2); // bonus
+          }
+        } else {
+          // no match
+          setMessage('🙈 Not a match, try again!', false);
+          setTimeout(() => {
+            card1.flipped = false;
+            card2.flipped = false;
+            updateMemoryCardUI(id1);
+            updateMemoryCardUI(id2);
+            memoryFlipped = [];
+            memoryLock = false;
+          }, 700);
+        }
+      }
+    }
+
+    function updateMemoryCardUI(cardId) {
+      const cardEl = document.querySelector(`.card[data-card-id="${cardId}"]`);
+      if (!cardEl) return;
+      const card = memoryCards[cardId];
+      cardEl.textContent = (card.flipped || card.matched) ? card.value : '❓';
+      cardEl.className = `card ${card.flipped ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`;
+    }
+
+    // ******************** PATTERN (What comes next?) ********************
+    function renderPattern() {
+      patternAnswered = false;
+      const patterns = [
+        { seq: ['🐶', '🐱', '🐶', '🐱'], options: ['🐶', '🐱', '🐸'], answer: '🐶' },
+        { seq: ['🔴', '🔵', '🔴', '🔵'], options: ['🔴', '🟡', '🔵'], answer: '🔴' },
+        { seq: ['🍎', '🍌', '🍎', '🍌'], options: ['🍎', '🍇', '🍌'], answer: '🍎' },
+        { seq: ['⭐', '🌙', '⭐', '🌙'], options: ['⭐', '☀️', '🌙'], answer: '⭐' }
+      ];
+      const chosen = patterns[Math.floor(Math.random() * patterns.length)];
+      patternSequence = chosen.seq;
+      patternOptions = chosen.options;
+      patternCorrectAnswer = chosen.answer;
+      shuffleArray(patternOptions);
+
+      let seqHtml = `<div class="pattern-row">`;
+      patternSequence.forEach(emoji => {
+        seqHtml += `<div class="pattern-item">${emoji}</div>`;
+      });
+      seqHtml += `<div class="pattern-item" style="background:#ffe0b0;">❓</div></div>`;
+      
+      let optHtml = `<div class="options-row">`;
+      patternOptions.forEach(opt => {
+        optHtml += `<div class="option-btn" data-option="${opt}">${opt}</div>`;
+      });
+      optHtml += `</div>`;
+      
+      playArea.innerHTML = seqHtml + optHtml;
+      setMessage('🔍 Which one comes next? Tap the answer!', true);
+
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', onPatternOptionClick);
+      });
+    }
+
+    function onPatternOptionClick(e) {
+      if (patternAnswered) return;
+      const selected = e.currentTarget.dataset.option;
+      patternAnswered = true;
+      
+      if (selected === patternCorrectAnswer) {
+        setMessage(`✅ Yes! ${selected} is correct! +2 stars!`, true);
+        addStars(2);
+        // visual celebration
+        e.currentTarget.style.background = '#b0e57c';
+      } else {
+        setMessage(`❌ Oops! The pattern needed ${patternCorrectAnswer}. Let's try next one.`, false);
+        e.currentTarget.style.background = '#f4a2a2';
+      }
+      
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.style.pointerEvents = 'none';
+      });
+    }
+
+    // ******************** SORTING GAME ********************
+    function renderSort() {
+      sortCompleted = false;
+      // categories: animals vs fruits, etc
+      const categoryMap = {
+        '🐶': 'animals', '🐱': 'animals', '🐸': 'animals', '🐼': 'animals',
+        '🍎': 'fruits', '🍌': 'fruits', '🍇': 'fruits', '🍊': 'fruits'
+      };
+      const allItems = ['🐶', '🍎', '🐱', '🍌', '🐸', '🍇'];
+      shuffleArray(allItems);
+      sortItems = allItems.slice(0, 4); // use 4 draggable items
+
+      let html = `
+        <div style="font-size:1.8rem; margin-bottom:5px;">🐾 Animals &nbsp;&nbsp;|&nbsp;&nbsp; 🍓 Fruits</div>
+        <div class="sort-boxes">
+          <div class="drop-zone" data-category="animals"><span>🐾</span> Animals</div>
+          <div class="drop-zone" data-category="fruits"><span>🍓</span> Fruits</div>
+        </div>
+        <div class="drag-items" id="draggableContainer">
+      `;
+      sortItems.forEach((item, idx) => {
+        html += `<div class="drag-item" draggable="true" data-item="${item}" data-idx="${idx}">${item}</div>`;
+      });
+      html += `</div>`;
+      playArea.innerHTML = html;
+      setMessage('👉 Drag each item to the right box!', true);
+
+      // drag and drop listeners
+      const draggables = document.querySelectorAll('.drag-item');
+      const dropZones = document.querySelectorAll('.drop-zone');
+      
+      draggables.forEach(drag => {
+        drag.addEventListener('dragstart', handleDragStart);
+        drag.addEventListener('dragend', handleDragEnd);
+      });
+      
+      dropZones.forEach(zone => {
+        zone.addEventListener('dragover', (e) => e.preventDefault());
+        zone.addEventListener('drop', handleDrop);
+      });
+    }
+
+    function handleDragStart(e) {
+      const item = e.target.dataset.item;
+      e.dataTransfer.setData('text/plain', item);
+      currentDragItem = e.target;
+      e.target.style.opacity = '0.5';
+    }
+
+    function handleDragEnd(e) {
+      e.target.style.opacity = '1';
+      currentDragItem = null;
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      if (sortCompleted) return;
+      const zone = e.currentTarget;
+      const category = zone.dataset.category;
+      const itemEmoji = e.dataTransfer.getData('text/plain');
+      
+      const animalEmojis = ['🐶','🐱','🐸','🐼'];
+      const fruitEmojis = ['🍎','🍌','🍇','🍊'];
+      
+      let isCorrect = false;
+      if (category === 'animals' && animalEmojis.includes(itemEmoji)) isCorrect = true;
+      if (category === 'fruits' && fruitEmojis.includes(itemEmoji)) isCorrect = true;
+
+      if (isCorrect) {
+        setMessage(`✅ Great! ${itemEmoji} belongs to ${category}! +1 star`, true);
+        addStars(1);
+        // remove the dragged element
+        if (currentDragItem) {
+          currentDragItem.remove();
+        }
+        // check if all items sorted
+        const remaining = document.querySelectorAll('.drag-item').length;
+        if (remaining === 0) {
+          sortCompleted = true;
+          setMessage('🎈 Amazing! You sorted everything! +3 bonus stars!', true);
+          addStars(3);
+        }
+      } else {
+        setMessage(`❌ Hmm, ${itemEmoji} doesn't go there. Try again!`, false);
+      }
+    }
+
+    // ---------- NEXT ROUND (refresh current game) ----------
+    nextBtn.addEventListener('click', () => {
+      resetForMode();
+      renderGame();
+    });
+
+    // ---------- UTILS ----------
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    // ---------- INITIAL LOAD ----------
+    renderGame();
+
+    // Extra: make memory click work after reset
+    window.addEventListener('load', () => {
+      // if any leftover, fine
+    });
+  })();
+</script>
+</body>
+</html>
