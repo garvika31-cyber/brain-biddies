@@ -2,15 +2,15 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brainy Buddies Ultimate</title>
+<title>Brainy Buddies Game</title>
 
 <style>
 body{
   margin:0;
   font-family:sans-serif;
-  background:linear-gradient(135deg,#4facfe,#00f2fe);
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:white;
   text-align:center;
-  color:#333;
 }
 
 .container{
@@ -19,23 +19,19 @@ body{
   padding:10px;
 }
 
-.header{
-  color:white;
-}
-
 .card{
   background:white;
+  color:#333;
   border-radius:20px;
   padding:15px;
   margin-top:10px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.2);
 }
 
-.button{
+button{
   padding:12px;
-  border:none;
-  border-radius:12px;
   margin:6px;
+  border:none;
+  border-radius:10px;
   font-size:18px;
   background:#ffd166;
 }
@@ -47,7 +43,7 @@ body{
 }
 
 .tile{
-  background:#ffe;
+  background:#eee;
   padding:18px;
   font-size:28px;
   border-radius:12px;
@@ -56,14 +52,10 @@ body{
 .correct{background:#90ee90;}
 .wrong{background:#ff7f7f;}
 
-.progress{
-  color:white;
-}
-
 .instructions{
   background:#fff3cd;
   padding:10px;
-  border-radius:12px;
+  border-radius:10px;
   margin-bottom:10px;
 }
 </style>
@@ -74,49 +66,45 @@ body{
 
 <div class="container">
 
-<h2 class="header">🧠 Brainy Buddies</h2>
+<h2>🧠 Brainy Buddies</h2>
 
-<div class="progress">
-Stage <span id="stage">1</span>/10 | ⭐ <span id="score">0</span>
+<div>
+Level <span id="level">1</span>/10 | ⭐ <span id="score">0</span>
 </div>
 
 <div class="card" id="game"></div>
 
-<button class="button" onclick="next()">Next ▶</button>
+<button onclick="nextLevel()">Next ▶</button>
 
 </div>
 
 <script>
 
-let stage=1;
+let level=1;
 let score=0;
-
-let brain={
-  memory:0,
-  logic:0,
-  focus:0
-};
 
 const game=document.getElementById("game");
 
 function update(){
-  stageEl.innerText=stage;
+  levelEl.innerText=level;
   scoreEl.innerText=score;
 }
 
-const stageEl=document.getElementById("stage");
+const levelEl=document.getElementById("level");
 const scoreEl=document.getElementById("score");
 
 // ---------- MEMORY ----------
-function memory(){
-  let emojis=["🐶","🐱","🐸","🐼"];
-  let deck=[...emojis,...emojis].sort(()=>Math.random()-0.5);
+function memoryGame(){
+  let emojis=["🐶","🐱","🐸","🐼","🦊"];
+  let pairs=2+Math.floor(level/2);
+  let deck=[...emojis.slice(0,pairs),...emojis.slice(0,pairs)]
+    .sort(()=>Math.random()-0.5);
 
   let first=null;
 
   let html=`
   <div class="instructions">
-  🧠 Match same animals. Tap two cards.
+  🧠 Tap two cards to find matching pairs
   </div>
   <div class="grid">
   `;
@@ -140,7 +128,6 @@ function memory(){
         el.classList.add("correct");
         first.el.classList.add("correct");
         score++;
-        brain.memory++;
       }else{
         setTimeout(()=>{
           el.innerText="❓";
@@ -154,47 +141,59 @@ function memory(){
 }
 
 // ---------- PATTERN ----------
-function pattern(){
-  let seq=["🐶","🐱","🐶","🐱"];
+function patternGame(){
+  let seq=[];
+  for(let i=0;i<3+level;i++){
+    seq.push(["🔴","🔵","🟢"][i%3]);
+  }
+
+  let ans=seq[seq.length-3];
 
   let html=`
   <div class="instructions">
-  🔷 Find what comes next
+  🔷 Find the next pattern
   </div>
   <div style="font-size:30px">
   ${seq.join(" ")} ❓
   </div>
   `;
 
-  ["🐶","🐱","🐸"].forEach(opt=>{
-    html+=`<button class="button" onclick="answer('${opt}')">${opt}</button>`;
+  ["🔴","🔵","🟢"].forEach(opt=>{
+    html+=`<button onclick="answer('${opt}','${ans}')">${opt}</button>`;
   });
 
   game.innerHTML=html;
 
-  window.answer=function(a){
-    if(a==="🐶"){
+  window.answer=function(sel,ans){
+    if(sel===ans){
       score+=2;
-      brain.logic++;
-      alert("Correct!");
+      showMsg("Correct 🎉");
     }else{
-      alert("Try again!");
+      showMsg("Try again ❌");
     }
     update();
   }
 }
 
 // ---------- SORT ----------
-function sort(){
+function sortGame(){
+  let items=["🐶","🍎","🐱","🍌","🐸","🍇"]
+    .sort(()=>Math.random()-0.5)
+    .slice(0,3+level);
+
   let html=`
   <div class="instructions">
-  🧩 Tap item then choose category
+  🧩 Tap item → then choose category
   </div>
-  <button onclick="pick('🐶')">🐶</button>
-  <button onclick="pick('🍎')">🍎</button>
-  <br><br>
-  <button onclick="drop('animal')">🐾</button>
-  <button onclick="drop('fruit')">🍓</button>
+  `;
+
+  items.forEach(i=>{
+    html+=`<button onclick="pick('${i}')">${i}</button>`;
+  });
+
+  html+=`<br><br>
+  <button onclick="drop('animal')">🐾 Animals</button>
+  <button onclick="drop('fruit')">🍓 Fruits</button>
   `;
 
   game.innerHTML=html;
@@ -208,48 +207,50 @@ function sort(){
   window.drop=function(type){
     if(!selected)return;
 
-    let correct=(selected==="🐶" && type==="animal") ||
-                (selected==="🍎" && type==="fruit");
+    let animals=["🐶","🐱","🐸"];
+    let fruits=["🍎","🍌","🍇"];
+
+    let correct=(type==="animal" && animals.includes(selected)) ||
+                (type==="fruit" && fruits.includes(selected));
 
     if(correct){
       score++;
-      brain.logic++;
-      alert("Good!");
+      showMsg("Good job ⭐");
     }else{
-      alert("Wrong!");
+      showMsg("Wrong ❌");
     }
 
     update();
   }
 }
 
-// ---------- FLOW ----------
-function load(){
-  if(stage%3===1) memory();
-  else if(stage%3===2) pattern();
-  else sort();
+// ---------- MESSAGE ----------
+function showMsg(text){
+  game.innerHTML += `<p style="color:green;">${text}</p>`;
 }
 
-function next(){
-  if(stage<10){
-    stage++;
-    load();
+// ---------- FLOW ----------
+function loadGame(){
+  if(level%3===1) memoryGame();
+  else if(level%3===2) patternGame();
+  else sortGame();
+}
+
+function nextLevel(){
+  if(level<10){
+    level++;
+    loadGame();
   }else{
-    report();
+    game.innerHTML = `
+    <h3>🎉 Game Completed!</h3>
+    <p>Your Score: ${score}</p>
+    <p>Great learning!</p>
+    `;
   }
   update();
 }
 
-function report(){
-  alert(
-    "🧠 Report\n"+
-    "Memory: "+brain.memory+"\n"+
-    "Logic: "+brain.logic+"\n"+
-    "Focus: "+brain.focus
-  );
-}
-
-load();
+loadGame();
 
 </script>
 
