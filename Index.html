@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>🧠 Brainy Buddies · Smart Fun for Ages 4‑6</title>
+  <title>Brainy Buddies · Ages 4‑6</title>
   <style>
     * {
       box-sizing: border-box;
-      user-select: none; /* Prevents accidental text selection while tapping */
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     body {
       margin: 0;
@@ -22,7 +23,7 @@
     .game-container {
       max-width: 750px;
       width: 100%;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(8px);
       border-radius: 64px 64px 48px 48px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 6px 12px rgba(0, 0, 0, 0.3);
@@ -32,7 +33,7 @@
     }
     h1 {
       margin: 0 0 8px;
-      font-size: 2.4rem;
+      font-size: 2.2rem;
       font-weight: 700;
       color: #1e2f4b;
       text-shadow: 3px 3px 0 #ffb347;
@@ -81,7 +82,7 @@
       border: none;
       border-radius: 60px;
       padding: 12px 8px;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: bold;
       color: #1e3a5f;
       box-shadow: 0 5px 0 #b46f30, 0 2px 8px rgba(0,0,0,0.2);
@@ -110,7 +111,7 @@
       align-items: center;
       justify-content: center;
     }
-    /* memory grid */
+    /* Memory Grid */
     .memory-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -134,7 +135,7 @@
     }
     .card.flipped {
       background: #b0d9b1;
-      box-shadow: 0 4px 0 #5d7a5e, 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 0 #5d7a5e;
       transform: translateY(4px);
       border-color: #e2f0e2;
     }
@@ -146,7 +147,7 @@
       pointer-events: none;
       font-size: 2.5rem;
     }
-    /* pattern row */
+    /* Pattern */
     .pattern-row {
       display: flex;
       justify-content: center;
@@ -155,15 +156,15 @@
       margin: 25px 0 15px;
     }
     .pattern-item {
-      width: 85px;
-      height: 85px;
+      width: 80px;
+      height: 80px;
       background: #ffecb3;
       border-radius: 30px;
-      box-shadow: 0 7px 0 #c2a155, 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 7px 0 #c2a155;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3.2rem;
+      font-size: 3rem;
       border: 3px solid #fff5d6;
     }
     .options-row {
@@ -173,11 +174,11 @@
       margin-top: 20px;
     }
     .option-btn {
-      width: 95px;
-      height: 95px;
+      width: 90px;
+      height: 90px;
       background: #fdd998;
       border-radius: 35px;
-      box-shadow: 0 8px 0 #b77e3c, 0 4px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 0 #b77e3c;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -191,7 +192,13 @@
       box-shadow: 0 2px 0 #b77e3c;
       transform: translateY(6px);
     }
-    /* sort area */
+    /* Sort (Tap version) */
+    .sort-instruction {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #1e3a5f;
+    }
     .sort-boxes {
       display: flex;
       gap: 20px;
@@ -208,19 +215,28 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       padding: 15px 5px;
+      transition: 0.1s;
     }
     .drop-zone span {
       font-size: 2.5rem;
       margin-bottom: 5px;
     }
-    .drag-items {
+    .drop-zone.selected-zone {
+      background: #ffe599;
+      border: 4px solid #ffb347;
+      box-shadow: inset 0 4px 6px rgba(0,0,0,0.05), 0 4px 0 #6e8b9c;
+      transform: translateY(4px);
+    }
+    .items-to-sort {
       display: flex;
       justify-content: center;
       gap: 25px;
       margin: 20px 0 10px;
+      flex-wrap: wrap;
     }
-    .drag-item {
+    .sort-item {
       width: 85px;
       height: 85px;
       background: #fbd5a2;
@@ -231,13 +247,19 @@
       justify-content: center;
       font-size: 3rem;
       border: 3px solid white;
-      cursor: grab;
-      transition: 0.1s;
+      cursor: pointer;
+      transition: 0.08s;
       transform: translateY(-2px);
     }
-    .drag-item:active {
-      cursor: grabbing;
-      opacity: 0.8;
+    .sort-item.selected-item {
+      background: #ffe082;
+      box-shadow: 0 3px 0 #b47d44;
+      transform: translateY(4px);
+      border: 4px solid #ffc107;
+    }
+    .sort-item.placed {
+      opacity: 0;
+      pointer-events: none;
     }
     .message-area {
       min-height: 50px;
@@ -257,7 +279,7 @@
       font-size: 1.5rem;
       padding: 16px 35px;
       border-radius: 50px;
-      box-shadow: 0 7px 0 #2c5a7a, 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 7px 0 #2c5a7a;
       border: 2px solid #b5dafc;
       cursor: pointer;
       margin-top: 20px;
@@ -292,9 +314,7 @@
       <button class="mode-btn" data-mode="pattern"><span>🔷</span> Pattern</button>
       <button class="mode-btn" data-mode="sort"><span>🧩</span> Sort</button>
     </div>
-    <div id="playArea" class="play-area">
-      <!-- dynamic content injected by js -->
-    </div>
+    <div id="playArea" class="play-area"></div>
     <div id="message" class="message-area">✨ Choose a game! ✨</div>
     <button class="action-button" id="nextRoundBtn">▶ Next Round</button>
   </div>
@@ -310,45 +330,38 @@
     "use strict";
 
     // ---------- GLOBAL STATE ----------
-    let currentMode = 'memory'; // memory, pattern, sort
+    let currentMode = 'memory';
     let starsEarned = 0;
     const starDisplay = document.getElementById('starDisplay');
     const playArea = document.getElementById('playArea');
     const messageDiv = document.getElementById('message');
     const nextBtn = document.getElementById('nextRoundBtn');
 
-    // Game-specific states
-    let memoryCards = [];
-    let memoryFlipped = [];
-    let memoryLock = false;
-    let memoryMatchedPairs = 0;
+    // Game states
+    let memoryCards = [], memoryFlipped = [], memoryLock = false, memoryMatchedPairs = 0;
+    let patternSequence = [], patternOptions = [], patternCorrectAnswer = '', patternAnswered = false;
+    let sortItems = [], sortRemaining = [], sortSelectedItem = null, sortSelectedZone = null, sortCompleted = false;
 
-    let patternSequence = [];
-    let patternOptions = [];
-    let patternCorrectAnswer = '';
-    let patternAnswered = false;
-
-    let sortItems = [];
-    let sortTarget = { category1: [], category2: [] }; // not heavily used, dynamic
-    let sortCompleted = false;
-    let currentDragItem = null;
-
-    // ----- helper: update star UI -----
+    // Helpers
     function addStars(amount = 1) {
       starsEarned += amount;
       starDisplay.innerText = `⭐ ${starsEarned}`;
     }
-
     function setMessage(text, isGood = true) {
       messageDiv.innerHTML = text;
       messageDiv.style.color = isGood ? '#1f4a2c' : '#9e3c3c';
     }
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
 
-    // ----- mode switching -----
-    const modeBtns = document.querySelectorAll('.mode-btn');
-    modeBtns.forEach(btn => {
+    // Mode switching
+    document.querySelectorAll('.mode-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        modeBtns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentMode = btn.dataset.mode;
         resetForMode();
@@ -357,39 +370,26 @@
     });
 
     function resetForMode() {
-      // reset all temporary states
-      memoryCards = [];
-      memoryFlipped = [];
-      memoryLock = false;
-      memoryMatchedPairs = 0;
+      memoryCards = []; memoryFlipped = []; memoryLock = false; memoryMatchedPairs = 0;
       patternAnswered = false;
-      sortCompleted = false;
-      currentDragItem = null;
+      sortCompleted = false; sortSelectedItem = null; sortSelectedZone = null;
     }
 
-    // ---------- RENDER BASED ON MODE ----------
     function renderGame() {
       if (currentMode === 'memory') renderMemory();
       else if (currentMode === 'pattern') renderPattern();
       else if (currentMode === 'sort') renderSort();
     }
 
-    // ******************** MEMORY MATCH ********************
+    // ---------- MEMORY MATCH ----------
     function renderMemory() {
-      // Emojis for 4x2 grid (8 cards = 4 pairs)
       const emojiSet = ['🐶', '🐱', '🐸', '🐼'];
       let deck = [...emojiSet, ...emojiSet];
       shuffleArray(deck);
-      
       memoryCards = deck.map((value, index) => ({
-        id: index,
-        value: value,
-        matched: false,
-        flipped: false
+        id: index, value, matched: false, flipped: false
       }));
-      memoryMatchedPairs = 0;
-      memoryFlipped = [];
-      memoryLock = false;
+      memoryMatchedPairs = 0; memoryFlipped = []; memoryLock = false;
 
       let html = `<div class="memory-grid">`;
       memoryCards.forEach((card, idx) => {
@@ -401,7 +401,6 @@
       playArea.innerHTML = html;
       setMessage('🐾 Find the matching pairs!', true);
 
-      // attach event listeners
       document.querySelectorAll('.card').forEach(cardEl => {
         cardEl.addEventListener('click', onMemoryCardClick);
       });
@@ -412,13 +411,10 @@
       const cardDiv = e.currentTarget;
       const cardId = parseInt(cardDiv.dataset.cardId);
       const card = memoryCards[cardId];
-      
-      // prevent if already matched or flipped
       if (card.matched) return;
       if (memoryFlipped.includes(cardId)) return;
       if (memoryFlipped.length >= 2) return;
 
-      // flip card
       card.flipped = true;
       memoryFlipped.push(cardId);
       updateMemoryCardUI(cardId);
@@ -426,39 +422,25 @@
       if (memoryFlipped.length === 2) {
         memoryLock = true;
         const [id1, id2] = memoryFlipped;
-        const card1 = memoryCards[id1];
-        const card2 = memoryCards[id2];
+        const card1 = memoryCards[id1], card2 = memoryCards[id2];
 
         if (card1.value === card2.value) {
-          // MATCH!
-          card1.matched = true;
-          card2.matched = true;
-          card1.flipped = true;
-          card2.flipped = true;
+          card1.matched = true; card2.matched = true;
           memoryMatchedPairs++;
           addStars(1);
           setMessage('🌟 Great match! +1 star', true);
-          
-          updateMemoryCardUI(id1);
-          updateMemoryCardUI(id2);
-          
-          memoryFlipped = [];
-          memoryLock = false;
-          
+          updateMemoryCardUI(id1); updateMemoryCardUI(id2);
+          memoryFlipped = []; memoryLock = false;
           if (memoryMatchedPairs === 4) {
             setMessage('🎉 You found all pairs! Super memory! 🌟🌟🌟', true);
-            addStars(2); // bonus
+            addStars(2);
           }
         } else {
-          // no match
           setMessage('🙈 Not a match, try again!', false);
           setTimeout(() => {
-            card1.flipped = false;
-            card2.flipped = false;
-            updateMemoryCardUI(id1);
-            updateMemoryCardUI(id2);
-            memoryFlipped = [];
-            memoryLock = false;
+            card1.flipped = false; card2.flipped = false;
+            updateMemoryCardUI(id1); updateMemoryCardUI(id2);
+            memoryFlipped = []; memoryLock = false;
           }, 700);
         }
       }
@@ -472,7 +454,7 @@
       cardEl.className = `card ${card.flipped ? 'flipped' : ''} ${card.matched ? 'matched' : ''}`;
     }
 
-    // ******************** PATTERN (What comes next?) ********************
+    // ---------- PATTERN ----------
     function renderPattern() {
       patternAnswered = false;
       const patterns = [
@@ -482,23 +464,15 @@
         { seq: ['⭐', '🌙', '⭐', '🌙'], options: ['⭐', '☀️', '🌙'], answer: '⭐' }
       ];
       const chosen = patterns[Math.floor(Math.random() * patterns.length)];
-      patternSequence = chosen.seq;
-      patternOptions = chosen.options;
-      patternCorrectAnswer = chosen.answer;
+      patternSequence = chosen.seq; patternOptions = chosen.options; patternCorrectAnswer = chosen.answer;
       shuffleArray(patternOptions);
 
       let seqHtml = `<div class="pattern-row">`;
-      patternSequence.forEach(emoji => {
-        seqHtml += `<div class="pattern-item">${emoji}</div>`;
-      });
+      patternSequence.forEach(emoji => seqHtml += `<div class="pattern-item">${emoji}</div>`);
       seqHtml += `<div class="pattern-item" style="background:#ffe0b0;">❓</div></div>`;
-      
       let optHtml = `<div class="options-row">`;
-      patternOptions.forEach(opt => {
-        optHtml += `<div class="option-btn" data-option="${opt}">${opt}</div>`;
-      });
+      patternOptions.forEach(opt => optHtml += `<div class="option-btn" data-option="${opt}">${opt}</div>`);
       optHtml += `</div>`;
-      
       playArea.innerHTML = seqHtml + optHtml;
       setMessage('🔍 Which one comes next? Tap the answer!', true);
 
@@ -511,86 +485,79 @@
       if (patternAnswered) return;
       const selected = e.currentTarget.dataset.option;
       patternAnswered = true;
-      
       if (selected === patternCorrectAnswer) {
         setMessage(`✅ Yes! ${selected} is correct! +2 stars!`, true);
         addStars(2);
-        // visual celebration
         e.currentTarget.style.background = '#b0e57c';
       } else {
-        setMessage(`❌ Oops! The pattern needed ${patternCorrectAnswer}. Let's try next one.`, false);
+        setMessage(`❌ Oops! The pattern needed ${patternCorrectAnswer}. Try next one.`, false);
         e.currentTarget.style.background = '#f4a2a2';
       }
-      
-      document.querySelectorAll('.option-btn').forEach(btn => {
-        btn.style.pointerEvents = 'none';
-      });
+      document.querySelectorAll('.option-btn').forEach(btn => btn.style.pointerEvents = 'none');
     }
 
-    // ******************** SORTING GAME ********************
+    // ---------- SORT (TAP TO SORT) ----------
     function renderSort() {
-      sortCompleted = false;
-      // categories: animals vs fruits, etc
-      const categoryMap = {
-        '🐶': 'animals', '🐱': 'animals', '🐸': 'animals', '🐼': 'animals',
-        '🍎': 'fruits', '🍌': 'fruits', '🍇': 'fruits', '🍊': 'fruits'
-      };
-      const allItems = ['🐶', '🍎', '🐱', '🍌', '🐸', '🍇'];
+      sortCompleted = false; sortSelectedItem = null; sortSelectedZone = null;
+      const allItems = ['🐶', '🍎', '🐱', '🍌', '🐸', '🍇', '🐼', '🍊'];
       shuffleArray(allItems);
-      sortItems = allItems.slice(0, 4); // use 4 draggable items
+      sortItems = allItems.slice(0, 5); // 5 items to sort
+      sortRemaining = [...sortItems];
 
       let html = `
-        <div style="font-size:1.8rem; margin-bottom:5px;">🐾 Animals &nbsp;&nbsp;|&nbsp;&nbsp; 🍓 Fruits</div>
+        <div class="sort-instruction">👉 Tap an item, then tap the correct box</div>
         <div class="sort-boxes">
           <div class="drop-zone" data-category="animals"><span>🐾</span> Animals</div>
           <div class="drop-zone" data-category="fruits"><span>🍓</span> Fruits</div>
         </div>
-        <div class="drag-items" id="draggableContainer">
+        <div class="items-to-sort" id="sortItemsContainer">
       `;
       sortItems.forEach((item, idx) => {
-        html += `<div class="drag-item" draggable="true" data-item="${item}" data-idx="${idx}">${item}</div>`;
+        html += `<div class="sort-item" data-item="${item}" data-idx="${idx}">${item}</div>`;
       });
       html += `</div>`;
       playArea.innerHTML = html;
-      setMessage('👉 Drag each item to the right box!', true);
+      setMessage('Tap an item, then tap the box where it belongs!', true);
 
-      // drag and drop listeners
-      const draggables = document.querySelectorAll('.drag-item');
-      const dropZones = document.querySelectorAll('.drop-zone');
-      
-      draggables.forEach(drag => {
-        drag.addEventListener('dragstart', handleDragStart);
-        drag.addEventListener('dragend', handleDragEnd);
+      // Attach listeners
+      document.querySelectorAll('.sort-item').forEach(el => {
+        el.addEventListener('click', onSortItemClick);
       });
-      
-      dropZones.forEach(zone => {
-        zone.addEventListener('dragover', (e) => e.preventDefault());
-        zone.addEventListener('drop', handleDrop);
+      document.querySelectorAll('.drop-zone').forEach(el => {
+        el.addEventListener('click', onDropZoneClick);
       });
     }
 
-    function handleDragStart(e) {
-      const item = e.target.dataset.item;
-      e.dataTransfer.setData('text/plain', item);
-      currentDragItem = e.target;
-      e.target.style.opacity = '0.5';
-    }
-
-    function handleDragEnd(e) {
-      e.target.style.opacity = '1';
-      currentDragItem = null;
-    }
-
-    function handleDrop(e) {
-      e.preventDefault();
+    function onSortItemClick(e) {
       if (sortCompleted) return;
+      const itemEl = e.currentTarget;
+      if (itemEl.classList.contains('placed')) return;
+
+      // Remove previous selection highlight
+      document.querySelectorAll('.sort-item').forEach(el => el.classList.remove('selected-item'));
+      itemEl.classList.add('selected-item');
+      sortSelectedItem = {
+        element: itemEl,
+        item: itemEl.dataset.item,
+        idx: itemEl.dataset.idx
+      };
+      setMessage(`Selected ${itemEl.dataset.item}. Now tap the correct box.`, true);
+    }
+
+    function onDropZoneClick(e) {
+      if (sortCompleted) return;
+      if (!sortSelectedItem) {
+        setMessage('👆 First tap an item!', false);
+        return;
+      }
       const zone = e.currentTarget;
       const category = zone.dataset.category;
-      const itemEmoji = e.dataTransfer.getData('text/plain');
-      
+      const itemEmoji = sortSelectedItem.item;
+      const itemEl = sortSelectedItem.element;
+
       const animalEmojis = ['🐶','🐱','🐸','🐼'];
       const fruitEmojis = ['🍎','🍌','🍇','🍊'];
-      
+
       let isCorrect = false;
       if (category === 'animals' && animalEmojis.includes(itemEmoji)) isCorrect = true;
       if (category === 'fruits' && fruitEmojis.includes(itemEmoji)) isCorrect = true;
@@ -598,43 +565,34 @@
       if (isCorrect) {
         setMessage(`✅ Great! ${itemEmoji} belongs to ${category}! +1 star`, true);
         addStars(1);
-        // remove the dragged element
-        if (currentDragItem) {
-          currentDragItem.remove();
-        }
-        // check if all items sorted
-        const remaining = document.querySelectorAll('.drag-item').length;
-        if (remaining === 0) {
+        itemEl.classList.add('placed');
+        itemEl.classList.remove('selected-item');
+        // Remove from remaining
+        sortRemaining = sortRemaining.filter(i => i !== itemEmoji);
+        sortSelectedItem = null;
+
+        if (sortRemaining.length === 0) {
           sortCompleted = true;
           setMessage('🎈 Amazing! You sorted everything! +3 bonus stars!', true);
           addStars(3);
+        } else {
+          setMessage(`👍 Good! ${sortRemaining.length} more to sort.`, true);
         }
       } else {
         setMessage(`❌ Hmm, ${itemEmoji} doesn't go there. Try again!`, false);
+        itemEl.classList.remove('selected-item');
+        sortSelectedItem = null;
       }
     }
 
-    // ---------- NEXT ROUND (refresh current game) ----------
+    // Next round
     nextBtn.addEventListener('click', () => {
       resetForMode();
       renderGame();
     });
 
-    // ---------- UTILS ----------
-    function shuffleArray(arr) {
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-    }
-
-    // ---------- INITIAL LOAD ----------
+    // Init
     renderGame();
-
-    // Extra: make memory click work after reset
-    window.addEventListener('load', () => {
-      // if any leftover, fine
-    });
   })();
 </script>
 </body>
